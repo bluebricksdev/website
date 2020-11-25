@@ -113,10 +113,10 @@ function IndexPage() {
 
         <form
           className={classes.form}
-          action="/?submitted=1"
+          // action="/?submitted=1"
           method="post"
           data-netlify="true"
-          data-netlify-recaptcha="true"
+          // data-netlify-recaptcha="true"
         >
           <Typography>Un projet, une question ? Contactez-nous !</Typography>
           <TextField
@@ -139,9 +139,9 @@ function IndexPage() {
             inputProps={{ rowsMin: 5 }}
             disabled={submitting}
           />
-          <div data-netlify-recaptcha="true" className={classes.formRecaptcha}>
+          {/* <div data-netlify-recaptcha="true" className={classes.formRecaptcha}>
             {" "}
-          </div>
+          </div> */}
           <div className={classes.formButtonContainer}>
             <Grow in={submitting}>
               <CircularProgress
