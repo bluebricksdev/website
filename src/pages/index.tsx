@@ -16,6 +16,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 const emailRegexp = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
 const formName = "bluebricks-contact";
+const recaptchaSiteKey = "6Lf1O-0ZAAAAALCiOewjsk3xcT-wIkk6OY7bCHB5";
 
 function encode(data: Record<string, string>): string {
   return Object.keys(data)
@@ -81,11 +82,9 @@ const useStyles = makeStyles((theme: Theme) =>
 function IndexPage() {
   const classes = useStyles();
 
-  const captchaRef = React.createRef<ReCAPTCHA>();
-
   const [email, setEmail] = React.useState("");
   const [message, setMessage] = React.useState("");
-  const [recaptcha, setRacaptcha] = React.useState(false);
+  const [recaptcha, setRacaptcha] = React.useState("");
 
   const [submitting, setSubmitting] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
@@ -117,7 +116,8 @@ function IndexPage() {
       body: encode({
         "form-name": formName,
         email,
-        message // TODO: recaptcha
+        message,
+        "g-recaptcha-response": recaptcha
       })
     });
 
@@ -170,6 +170,7 @@ function IndexPage() {
           className={classes.form}
           method="post"
           data-netlify="true"
+          data-netlify-recaptcha="true"
           onSubmit={handleSubmit}
           name={formName}
         >
@@ -201,9 +202,8 @@ function IndexPage() {
           />
           <div className={classes.formBottom}>
             <ReCAPTCHA
-              ref={captchaRef}
-              sitekey="6Lf1O-0ZAAAAALCiOewjsk3xcT-wIkk6OY7bCHB5"
-              onChange={() => setRacaptcha(true)}
+              sitekey={recaptchaSiteKey}
+              onChange={(value) => setRacaptcha(value)}
             />
             <div className={classes.formButtonContainer}>
               <Grow in={submitting}>
