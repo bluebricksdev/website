@@ -5,13 +5,23 @@ import {
   Button,
   CircularProgress,
   Grow,
-  IconButton,
-  Snackbar,
   TextField,
   Typography
 } from "@material-ui/core";
-import { Close as CloseIcon } from "@material-ui/icons";
+import Alert from "@material-ui/lab/Alert";
 import Head from "next/head";
+import ReCAPTCHA from "react-google-recaptcha";
+
+// eslint-disable-next-line no-useless-escape
+const emailRegexp = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+
+const formName = "bluebricks-contact";
+
+function encode(data: Record<string, string>): string {
+  return Object.keys(data)
+    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+    .join("&");
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -49,14 +59,21 @@ const useStyles = makeStyles((theme: Theme) =>
     formTextField: {
       marginTop: theme.spacing(2)
     },
-    formRecaptcha: {
-      marginTop: theme.spacing(2)
+    formBottom: {
+      marginTop: theme.spacing(2),
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-end"
     },
     formButtonContainer: {
       marginTop: theme.spacing(2),
       display: "flex",
       justifyContent: "flex-end",
       alignItems: "center"
+    },
+    formAlert: {
+      marginTop: theme.spacing(4),
+      width: "100%"
     }
   })
 );
@@ -64,13 +81,51 @@ const useStyles = makeStyles((theme: Theme) =>
 function IndexPage() {
   const classes = useStyles();
 
+  const captchaRef = React.createRef<ReCAPTCHA>();
+
+  const [email, setEmail] = React.useState("");
+  const [message, setMessage] = React.useState("");
+  const [recaptcha, setRacaptcha] = React.useState(false);
+
   const [submitting, setSubmitting] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
-  React.useEffect(() => {
-    if (window.location.search.includes("submitted=1")) {
-      setSubmitted(true);
+  const [formAlert, setFormAlert] = React.useState("");
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    setSubmitting(true);
+
+    let alert = "";
+    if (!email.trim() || !emailRegexp.test(email)) {
+      alert = "Veuillez entrer une adresse e-mail valide";
+    } else if (!message.trim()) {
+      alert = "Veuillez entrer un message";
+    } else if (!recaptcha) {
+      alert = 'Veuillez cocher la case "Je ne suis pas un robot"';
     }
-  }, []);
+
+    setFormAlert(alert);
+    if (alert) {
+      setSubmitting(false);
+      return;
+    }
+
+    await fetch("/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: encode({
+        "form-name": formName,
+        email,
+        message // TODO: recaptcha
+      })
+    });
+
+    setSubmitting(false);
+    setSubmitted(true);
+    setEmail("");
+    setMessage("");
+  };
 
   return (
     <>
@@ -113,12 +168,12 @@ function IndexPage() {
 
         <form
           className={classes.form}
-          // action="/?submitted=1"
           method="post"
           data-netlify="true"
-          // data-netlify-recaptcha="true"
+          onSubmit={handleSubmit}
+          name={formName}
         >
-          <input type="hidden" name="form-name" value="bluebricks-contact" />
+          <input type="hidden" name="form-name" value={formName} />
           <Typography>Un projet, une question ? Contactez-nous !</Typography>
           <TextField
             variant="outlined"
@@ -129,6 +184,8 @@ function IndexPage() {
             autoComplete="off"
             fullWidth
             disabled={submitting}
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
           />
           <TextField
             variant="outlined"
@@ -139,49 +196,47 @@ function IndexPage() {
             fullWidth
             inputProps={{ rowsMin: 5 }}
             disabled={submitting}
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
           />
-          {/* <div data-netlify-recaptcha="true" className={classes.formRecaptcha}>
-            {" "}
-          </div> */}
-          <div className={classes.formButtonContainer}>
-            <Grow in={submitting}>
-              <CircularProgress
+          <div className={classes.formBottom}>
+            <ReCAPTCHA
+              ref={captchaRef}
+              sitekey="6Lf1O-0ZAAAAALCiOewjsk3xcT-wIkk6OY7bCHB5"
+              onChange={() => setRacaptcha(true)}
+            />
+            <div className={classes.formButtonContainer}>
+              <Grow in={submitting}>
+                <CircularProgress
+                  color="secondary"
+                  size={20}
+                  style={{ marginRight: 10 }}
+                />
+              </Grow>
+              <Button
+                variant="contained"
                 color="secondary"
-                size={20}
-                style={{ marginRight: 10 }}
-              />
-            </Grow>
-            <Button
-              variant="contained"
-              color="secondary"
-              type="submit"
-              disabled={submitting}
-              // onClick={() => setSubmitting(true)}
-            >
-              Envoyer
-            </Button>
+                type="submit"
+                disabled={submitting}
+              >
+                Envoyer
+              </Button>
+            </div>
           </div>
-        </form>
 
-        <Snackbar
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right"
-          }}
-          open={submitted}
-          onClose={() => setSubmitted(false)}
-          message="Message envoyé"
-          action={
-            <IconButton
-              size="small"
-              aria-label="close"
-              color="inherit"
-              onClick={() => setSubmitted(false)}
+          <Grow in={formAlert !== "" || submitted}>
+            <Alert
+              className={classes.formAlert}
+              onClose={() => {
+                setSubmitted(false);
+                setFormAlert("");
+              }}
+              severity={formAlert === "" && submitted ? "success" : "error"}
             >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          }
-        />
+              {formAlert || (submitted && "Message envoyé !")}
+            </Alert>
+          </Grow>
+        </form>
       </div>
     </>
   );
