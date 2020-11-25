@@ -155,7 +155,7 @@ function IndexPage() {
               color="secondary"
               type="submit"
               disabled={submitting}
-              onClick={() => setSubmitting(true)}
+              // onClick={() => setSubmitting(true)}
             >
               Envoyer
             </Button>
