@@ -118,6 +118,7 @@ function IndexPage() {
           data-netlify="true"
           // data-netlify-recaptcha="true"
         >
+          <input type="hidden" name="form-name" value="bluebricks-contact" />
           <Typography>Un projet, une question ? Contactez-nous !</Typography>
           <TextField
             variant="outlined"
