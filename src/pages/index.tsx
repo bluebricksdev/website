@@ -64,7 +64,10 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(2),
       display: "flex",
       justifyContent: "space-between",
-      alignItems: "flex-end"
+      alignItems: "flex-end",
+      [theme.breakpoints.down("sm")]: {
+        flexDirection: "column"
+      }
     },
     formButtonContainer: {
       marginTop: theme.spacing(2),
