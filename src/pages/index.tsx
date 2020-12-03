@@ -144,7 +144,7 @@ function IndexPage() {
         <meta name="og:url" content="https://bluebricks.dev/" />
         <meta
           name="og:image"
-          content="https://bluebricks.dev/Bluebricks-full-with-tagline.png"
+          content="https://bluebricks.dev/Bluebricks-og.png"
         />
         <meta
           name="description"
