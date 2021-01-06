@@ -134,12 +134,12 @@ function IndexPage() {
     <>
       <Head>
         <title>
-          Conseil et réalisation DevOps | Docker, Infrastructure as Code, CI/CD
-          | Bluebricks.
+          Conseil et réalisation DevOps | Docker, Infrastructure as Code, CI/CD,
+          Cloud | Bluebricks
         </title>
         <meta
           name="og:title"
-          content="Bluebricks. Conseil et réalisation DevOps."
+          content="Bluebricks conseil et réalisation DevOps"
         />
         <meta name="og:url" content="https://bluebricks.dev/" />
         <meta
@@ -148,7 +148,7 @@ function IndexPage() {
         />
         <meta
           name="description"
-          content="J'interviens en tant qu'expert DevOps indépendant afin de mettre en place de manière itérative les meilleures conditions possibles pour vos équipes de développement 🚀"
+          content="Nous aidons les entreprises à réussir leur transformation DevOps 🚀"
         />
       </Head>
 
